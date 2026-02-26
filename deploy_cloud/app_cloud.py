@@ -3,6 +3,7 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import os
 
 # Configurando a pagina
 st.set_page_config(page_title="Diagnóstico de Obesidade", page_icon="🏥", layout="centered")
@@ -10,7 +11,10 @@ st.set_page_config(page_title="Diagnóstico de Obesidade", page_icon="🏥", lay
 # ------------ Carregando o modelo diretamente ------------
 @st.cache_resource
 def load_model():
-    with open("pipeline_obesidade.pkl", 'rb') as f:
+    caminho_atual = os.path.dirname(__file__) # Obtendo o caminho do diretório atual onde o script está localizado
+    caminho_modelo = os.path.join(caminho_atual, "pipeline_obesidade.pkl") # Construindo o caminho completo para o arquivo do modelo usando o diretório atual
+
+    with open(caminho_modelo, 'rb') as f:
         return pickle.load(f)
 
 pipeline = load_model()
