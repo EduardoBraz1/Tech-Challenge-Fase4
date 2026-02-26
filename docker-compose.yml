@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  # A maquina de treinamento
+  trainer:
+    build: ./train
+    volumes:
+      - model_volume:/model_data
+    # Forçamos a execução do treinamento toda vez que o container for iniciado
+    command: ["python", "train.py"]
+    # Como o treinamento é uma tarefa que pode levar um tempo, não queremos que o container reinicie automaticamente
+    restart: "no"
+
+  # A API Flask
+  api:
+    build: ./api
+    ports:
+      - "5000:5000" # Mapeia a porta 5000 do container para a porta 5000 do host
+    volumes:
+      - model_volume:/model_data # Compartilha o volume com o serviço de treinamento para acessar o modelo treinado
+    depends_on:
+      - trainer # Só liga a API depois de o movelo terminar de treinar
+  
+  # streamlit
+  streamlit:
+    build: ./streamlit
+    ports:
+      - "8501:8501" # Mapeia a porta 8501 do container para a porta 8501 do host
+    depends_on:
+      - api # Só liga o Streamlit depois de a API estar rodando
+
+# Define o volume para compartilhar os dados do modelo entre os serviços
+volumes:
+  model_volume:
